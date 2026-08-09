@@ -1,6 +1,6 @@
 # simplchat
 
-An end-to-end encrypted chat application. Messages are encrypted and signed on the client before they ever reach the server, so the server only ever sees ciphertext.
+An end-to-end encrypted chat application. Messages are encrypted and signed on the client before they ever reach the server, so the server only ever sees ciphertext. Currently only tested with clients + server on one network, as the my new ISP is using CGNAT for now
 
 ## Features
 
