@@ -78,6 +78,22 @@ simplchat group create family alice,bob,carol
 simplchat group list
 ```
 
+## Run as a systemd service
+
+To run the relay server in the background and auto-start it on boot:
+
+```bash
+./install-systemd.sh
+```
+
+This installs `simplchat-server` as a systemd service. Useful commands:
+
+```bash
+systemctl status simplchat-server   # check status
+journalctl -u simplchat-server -f   # view logs
+./install-systemd.sh --uninstall    # remove the service
+```
+
 ## License
 
 MIT

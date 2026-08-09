@@ -1,0 +1,22 @@
+[Unit]
+Description=simplchat relay server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Run as the user who installed the service (set by install-systemd.sh).
+User=__USER__
+# Working directory must be the project dir so config.toml and data files resolve.
+WorkingDirectory=__PROJECT_DIR__
+# Use the venv's installed entry point.
+ExecStart=__PROJECT_DIR__/.venv/bin/simplchat-server
+Restart=on-failure
+RestartSec=5
+
+# Hardening (optional but recommended).
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
