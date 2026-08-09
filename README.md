@@ -43,7 +43,7 @@ Server settings (host, port, domain, TLS) live in `config.toml`.
 ### 2. Register a user
 
 ```bash
-simplchat register alice
+simplchat register <user>
 ```
 
 ### 3. Chat
@@ -51,7 +51,7 @@ simplchat register alice
 **Web UI** (recommended):
 
 ```bash
-simplchat-web alice
+simplchat-web <user>
 ```
 
 Then open the printed URL in a browser.
@@ -59,7 +59,7 @@ Then open the printed URL in a browser.
 **CLI:**
 
 ```bash
-simplchat chat alice
+simplchat chat <user>
 ```
 
 Type `recipient: message` to send.
@@ -67,14 +67,14 @@ Type `recipient: message` to send.
 ### Managing servers
 
 ```bash
-simplchat server add "My Server" "wss://chat.example.com:8765"
+simplchat server add "<server-name>" "wss:<server-ip/server-url>"
 simplchat server list
 ```
 
 ### Managing groups
 
 ```bash
-simplchat group create family alice,bob,carol
+simplchat group create family <user1>,<user2>, ...
 simplchat group list
 ```
 
