@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>simplchat</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div id="sidebar">
+        <h3>Groups</h3>
+        <div id="groups"></div>
+        <h3>Users</h3>
+        <div id="users"></div>
+    </div>
+    <div id="main">
+        <div id="header">
+            <h1>simplchat</h1>
+            <label class="switch" title="Toggle dark / light mode">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div id="messages"></div>
+        <div id="inputbar">
+            <span id="current-recipient">No recipient selected</span>
+            <input id="input" placeholder="Type a message...">
+            <button onclick="send()">Send</button>
+            <button class="secondary" onclick="loadHistory()">History</button>
+        </div>
+    </div>
+    <script>
+        const ws = new WebSocket("ws://" + location.host + "/ws");
+        const messagesEl = document.getElementById("messages");
+        const groupsEl = document.getElementById("groups");
+        const usersEl = document.getElementById("users");
+        const recipientEl = document.getElementById("current-recipient");
+        const themeToggle = document.getElementById("theme-toggle");
+
+        // The currently selected recipient (a single user or a group's members).
+        let currentRecipients = [];
+
+        // --- Theme handling (stored in a cookie) ---
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+            return match ? match[2] : null;
+        }
+
+        function setCookie(name, value) {
+            document.cookie = name + "=" + value + "; path=/; max-age=31536000"; // 1 year
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            themeToggle.checked = theme === "dark";
+        }
+
+        // Load the saved theme from the cookie, or default to light.
+        applyTheme(getCookie("theme") === "dark" ? "dark" : "light");
+
+        // Toggle theme and save it to the cookie.
+        themeToggle.addEventListener("change", () => {
+            const theme = themeToggle.checked ? "dark" : "light";
+            applyTheme(theme);
+            setCookie("theme", theme);
+        });
+
+        // When the connection opens, load the users and groups lists.
+        ws.onopen = () => {
+            ws.send(JSON.stringify({action: "users"}));
+            ws.send(JSON.stringify({action: "groups"}));
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === "message") {
+                addMessage(data.sender, data.text);
+            } else if (data.type === "history") {
+                messagesEl.innerHTML = "";
+                data.messages.forEach(m => addMessage(m.sender, m.text));
+            } else if (data.type === "groups") {
+                groupsEl.innerHTML = "";
+                for (const [name, members] of Object.entries(data.groups)) {
+                    const div = document.createElement("div");
+                    div.className = "group";
+                    div.textContent = name + " (" + members.join(", ") + ")";
+                    div.onclick = () => selectRecipient(members, name);
+                    groupsEl.appendChild(div);
+                }
+            } else if (data.type === "users") {
+                usersEl.innerHTML = "";
+                data.users.forEach(u => {
+                    const div = document.createElement("div");
+                    div.className = "group";  // reuse the clickable style
+                    div.textContent = u;
+                    div.onclick = () => selectRecipient([u], u);
+                    usersEl.appendChild(div);
+                });
+            }
+        };
+
+        // Select a recipient (a single user or a group's members) and highlight it.
+        function selectRecipient(recipients, label) {
+            currentRecipients = recipients;
+            recipientEl.textContent = "To: " + label;
+            recipientEl.classList.add("active");
+        }
+
+        function addMessage(sender, text) {
+            const div = document.createElement("div");
+            div.className = "msg";
+            div.innerHTML = '<span class="sender">' + sender + ':</span> ' + text;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function send() {
+            const text = document.getElementById("input").value;
+            if (currentRecipients.length && text) {
+                ws.send(JSON.stringify({action: "send", recipients: currentRecipients, text}));
+                document.getElementById("input").value = "";
+            } else if (!currentRecipients.length) {
+                recipientEl.textContent = "Click a user or group first!";
+            }
+        }
+
+        function loadHistory() {
+            ws.send(JSON.stringify({action: "history"}));
+        }
+
+        document.getElementById("input").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") send();
+        });
+    </script>
+</body>
+</html>

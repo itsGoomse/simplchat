@@ -1,0 +1,25 @@
+# simplchat server configuration
+#
+# This file holds all server settings in one place. You can copy it to
+# another device and drop it in to use the same configuration.
+#
+# To use TLS, set tls_enabled = true and provide cert_file/key_file paths.
+
+[server]
+# Host and port the server listens on.
+host = "localhost"
+port = 8765
+
+# Public domain address clients use to reach this server.
+# Set this to your real domain (e.g. "chat.example.com") when deploying.
+domain = "localhost"
+
+[tls]
+# Set to true to enable TLS (wss://). Requires cert_file and key_file.
+tls_enabled = false
+
+# Paths to the TLS certificate and private key.
+# Generate a self-signed cert with:
+#   openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes
+cert_file = "cert.pem"
+key_file = "key.pem"
