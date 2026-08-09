@@ -67,7 +67,7 @@ Type `recipient: message` to send.
 ### Managing servers
 
 ```bash
-simplchat server add "My Server" "wss://chat.example.com:8765"
+simplchat server add "<server-name>" "wss:<server-ip/server-url>"
 simplchat server list
 ```
 
